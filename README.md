@@ -17,7 +17,7 @@ The script expects that each modlist.txt will follow a certain format. The namin
 
 The contents of the files start with the first line matching the phone number that correlates to the initials within the "guardian" list of tuples.
 
-Subsequent lines have the name each mod that the player still needs, one per line.
+Subsequent lines should have the name each mod that the player still needs, one per line.
 
 ## Usage
 
