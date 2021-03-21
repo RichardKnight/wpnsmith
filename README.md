@@ -7,7 +7,7 @@ Several libraries must be installed for this script to run
 
 ```bash
 pip install requests
-pip install BeautifulSoup4
+pip install bs4
 pip install imapclient
 pip install pyzmail36
 pip install apscheduler
