@@ -2,7 +2,6 @@
 
 import requests     #   Used to access vendor website
 import bs4          #   Used to pull HTML of vendor inventory
-import re           #   Used to search with a regex for the correct container in the HTML
 import smtplib      #   Used to send emails as texts
 import imapclient   #   Used to check for any replies
 import pyzmail      #   Used to parse received emails
@@ -11,11 +10,15 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 # Scheduler used to set speficic times for the rec() and send() functions to run
 sch = BlockingScheduler()
 
-# List of tuples in the following format: (PhoneNumber, .txt file prefix)
-guardian = [('8885551111','az'), ('8885552222','by'), ('8885553333','cx')]
+# List of tuples in the following format: (PhoneNumber, 2-char .txt file prefix and carrier char)
+guardian = [('8885551111','aza'), ('8885552222','bya'), ('8885553333','cxc')]
 
 # Dictionary used for faster lookup by phone number
 prefix = dict(guardian)
+domain = {
+    'a': '@mms.att.net',
+    'c': '@mms.cricketwireless.net'
+}
 
 ### This function logs into the email address to check for any responses, indicating that a mod has been purchased
 def rec():
@@ -26,6 +29,12 @@ def rec():
     
     # Search for unread emails
     UIDs = imapConn.search(['UNSEEN'])
+    
+    # Determine today's mod in a variable to accomodate for case and new lines
+    modName = getMod().casefold() + '\n'
+    
+    # Counter for valid email responses
+    responses = 0
     
     # Loop through unread emails
     for e in UIDs:
@@ -44,6 +53,9 @@ def rec():
                 # Open appropriate text file for the sender
                 file = prefix[sender] + "modlist.txt"
                 
+                # Increment the number of valid responses
+                responses += 1
+                
                 try:
                     with open(file, 'r') as modList:
                         # Generate list of needed mods
@@ -51,9 +63,6 @@ def rec():
                 # If file isn't found, create an empty list for modsNeeded
                 except:
                     modsNeeded = []
-                
-                # Determine today's mod in a variable to accomodate for case and new lines
-                modName = get_Mod().casefold() + '\n'
                 
                 # Search for the daily mod in the list of needed mods
                 if modName.casefold() in modsNeeded:
@@ -67,6 +76,9 @@ def rec():
     
     # Disconnect from IMAP
     imapConn.logout()
+    
+    print("Valid responses received: %d" %responses) 
+    
     return;
 
 ### This function searches for the daily Banshee mod among the available modlist.txt files
@@ -78,35 +90,45 @@ def send():
     smtpConn.starttls()
     smtpConn.login('mailbox@email.com', 'PASSWORD')
     
+    # Determine today's mod
+    modName = getMod()
+    
+    # Counter for number of texts sent
+    sent = 0
+    
     # Loop through each modlist file
     for g in guardian:
         # Open appropriate text file
-        file = g[1] + 'modlist.txt'
+        file = g[1][0:2] + 'modlist.txt'
         
         try:
             with open(file, 'r') as modList:
                 # Generate list of needed mods
                 modsNeeded = [line.casefold() for line in modList]
                 
-                # Determine today's mod
-                modName = get_Mod()
-                
                 # Search for the daily mod in the list of needed mods, accomodating for case and new lines
                 if (modName.casefold()+'\n') in modsNeeded:
                     # Send text/email
                     message = 'Guardian. Just a heads up. I have the ' + modName + ' mod in stock today. It\'s not in your collection. Send me a "$" to let me know if you pick it up, and I\'ll cross it off for ya.'
-                    recipient = modsNeeded[0] + "@mms.att.net"
-                    smtpConn.sendmail('mailbox@email.com', recipient, message)
+                    recipient = modsNeeded[0] + domain[g[1][2]]
+                    smtpConn.sendmail('wpnsmthb44@gmail.com', recipient, message)
+                    
+                    # Increment number of text notifications sent
+                    sent += 1
+         
         # If file cannot be opened, skip the rest of the function
         except: 
             modsNeeded = []
         
     # Disconnect from SMTP
     smtpConn.quit()
+    
+    print("Notifications sent: %d" %sent)
+    
     return;
 
 ### This function scrubs the TodayInDestiny site for vendor inventories and returns the daily Banshee mod
-def get_Mod():
+def getMod():
     # Request vendor website
     url = 'https://www.todayindestiny.com/vendors'
     res = requests.get(url)
@@ -121,17 +143,26 @@ def get_Mod():
     # Pull site HTML
     soup = bs4.BeautifulSoup(res.text, "html.parser")
 
-    # Pull Banshee's daily mod CSS path
-    cssPath = 'div.vendorCardContainer:nth-child(7) > div:nth-child(2) > div:nth-child(4) > div:nth-child(2) > div:nth-child(2)'
-    elems = soup.select(cssPath)
-
-    # Convert CSS Path to string
-    rawInfo = "".join(map(str, elems))
-
-    # Search for mod name with a non-greedy regex
-    #   between <p class="itemTooltip_itemName"> and </p><p class="itemTooltip_itemType">
-    modName = re.search('<p class="itemTooltip_itemName">(.*?)</p><p class="itemTooltip_itemType">', rawInfo).group(1)
+  ### Scrape site for Banshee's daily mod
+    # Isolate vendor cards
+    vendors = soup.findAll('div', class_='vendorCardContainer')
     
+    # Search through cards for Banshee-44
+    for v in vendors:
+        if v.find('p', class_='vendorCardHeaderName').string == "Banshee-44":
+            # Isolate the "Material Exchange" portion of the vendor card
+            exchange = v.find('div', identifier='category_materials_exchange')
+            
+            # Separate into individual items
+            items = exchange.findAll('div', class_='vendorInventoryItemContainer')
+            
+            # Obtain the names of each item
+            itemNames = [i.find('p', class_='itemTooltip_itemName').string for i in items]
+
+    # Convert modName from bs4 NavigableString to a string
+    #   The mod in question is always second in the list
+    modName = "".join(map(str, itemNames[1]))
+
     return modName;
 
 # Schedule job to check for a response 30 minutes before refresh
