@@ -111,7 +111,7 @@ def send():
                     # Send text/email
                     message = 'Guardian. Just a heads up. I have the ' + modName + ' mod in stock today. It\'s not in your collection. Send me a "$" to let me know if you pick it up, and I\'ll cross it off for ya.'
                     recipient = modsNeeded[0] + domain[g[1][2]]
-                    smtpConn.sendmail('wpnsmthb44@gmail.com', recipient, message)
+                    smtpConn.sendmail('mailbox@email.com', recipient, message)
                     
                     # Increment number of text notifications sent
                     sent += 1
