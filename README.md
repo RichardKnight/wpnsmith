@@ -38,4 +38,5 @@ Your mailbox service may indicate an insecure connection; security is not being 
 
 ## Roadmap
 
-* **Bungie API integration** - I'd like to get this working with Bungie's API so I would no longer need to obtain a list of needed mods from each individual, as well as not manually remove it from the list of mods needed, since it would automatically update within the game/API.
+* **Create a dependencies package**
+* **Bungie API integration**
