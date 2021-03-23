@@ -3,7 +3,7 @@
 import os
 
 ### Create list of tuples in the following format: (PhoneNumber, 2-char .txt file prefix and carrier char) from available txt files
-def guardianList()
+def guardianList():
     # Obtain current working directory
     cwd = os.getcwd()
     
