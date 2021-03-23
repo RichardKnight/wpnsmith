@@ -2,7 +2,6 @@
 
 from wpnsmith_getMod import getMod
 from wpnsmith_guardianList import guardianList
-import smtplib      #   Used to send emails as texts
 import imapclient   #   Used to check for any replies
 import pyzmail      #   Used to parse received emails
 
