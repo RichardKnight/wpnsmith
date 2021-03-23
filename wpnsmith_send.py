@@ -64,4 +64,7 @@ def send():
     
     return;
 
-send()
+if creds:
+    send()
+else:
+    print("No login information found")

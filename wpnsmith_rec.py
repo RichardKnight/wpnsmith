@@ -75,4 +75,7 @@ def rec():
     
     return;
 
-rec()
+if creds:
+    rec()
+else:
+    print("No login information found")
