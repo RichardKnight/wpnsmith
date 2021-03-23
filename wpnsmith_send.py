@@ -1,10 +1,12 @@
 # wpnsmith_send.py - sends a text when Banshee is selling a mod that is not in Collections
 
+from wpnsmith_creds import getLogin
 from wpnsmith_getMod import getMod
+from wpnsmith_guardianList import guardianList
 import smtplib      #   Used to send emails as texts
 
-# List of tuples in the following format: (PhoneNumber, .txt file prefix)
-guardian = [('8146713959','rka'), ('8142480522','mka'), ('8147588840','jsc')]
+# Create list of phone numbers, initials, and carrier code formatted: (PhoneNumber, 2-char .txt file prefix and carrier char)
+guardian = guardianList()
 
 # Dictionary used for faster email lookup
 domain = {
@@ -13,14 +15,17 @@ domain = {
     'v': '@vzwpix.com'
 }
 
+# Get credentials to log into the email address
+creds = getLogin()
+
 ### This function searches for the daily Banshee mod among the available modlist.txt files
 ###     and sends a text if the mod is listed as not owned.
 def send():
     # Connect to SMTP to send emails
-    smtpConn = smtplib.SMTP('smtp.email.com', 587)
+    smtpConn = smtplib.SMTP('smtp.gmail.com', 587)
     smtpConn.ehlo()
     smtpConn.starttls()
-    smtpConn.login('mailbox@email.com', 'PASSWORD')
+    smtpConn.login(creds[0], creds[1])
     
     # Determine today's mod
     modName = getMod()
@@ -43,7 +48,7 @@ def send():
                     # Send text/email
                     message = 'Guardian. Just a heads up. I have the ' + modName + ' mod in stock today. It\'s not in your collection. Send me a "$" to let me know if you pick it up, and I\'ll cross it off for ya.'
                     recipient = modsNeeded[0] + domain[g[1][2]]
-                    smtpConn.sendmail('mailbox@email.com', recipient, message)
+                    smtpConn.sendmail(creds[0], recipient, message)
                     
                     # Increment number of text notifications sent
                     sent += 1

@@ -1,21 +1,25 @@
 # wpnsmith_rec.py - checks for responses to texts sent from wpnsmith_send.py, indicating the mod list needs to be updated
 
 from wpnsmith_getMod import getMod
+from wpnsmith_guardianList import guardianList
 import smtplib      #   Used to send emails as texts
 import imapclient   #   Used to check for any replies
 import pyzmail      #   Used to parse received emails
 
-# List of tuples in the following format: (PhoneNumber, 2-char .txt file prefix and carrier char)
-guardian = [('8885551111','aza'), ('8885552222','bya'), ('8885553333','cxc')]
+# Create list of phone numbers, initials, and carrier code formatted: (PhoneNumber, 2-char .txt file prefix and carrier char)
+guardian = guardianList()
 
 # Dictionary used for faster lookup by phone number
 prefix = dict(guardian)
 
+# Get credentials to log into the email address
+creds = getLogin()
+
 ### This function logs into the email address to check for any responses, indicating that a mod has been purchased
 def rec():
     # Connect to IMAP to check for a previous response
-    imapConn = imapclient.IMAPClient('imap.email.com', ssl=True)
-    imapConn.login('mailbox@email.com', 'PASSWORD')
+    imapConn = imapclient.IMAPClient('imap.gmail.com', ssl=True)
+    imapConn.login(creds[0], creds[1])
     imapConn.select_folder('INBOX')
     
     # Search for unread emails

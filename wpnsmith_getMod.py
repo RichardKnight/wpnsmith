@@ -1,3 +1,4 @@
+# wpnsmith_getMod.py - gets the daily mod sold by Banshee-44
 
 import requests     #   Used to access vendor website
 import bs4          #   Used to pull HTML of vendor inventory
