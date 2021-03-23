@@ -18,10 +18,10 @@ This can be set up to run with Windows Task Scheduler with two separate batch fi
 
 ```bash
 wpnsmith_rec.bat
-"Path where your Python exe is stored\python.exe" "Path where your Python script is stored\wpnsmith_rec.py" > logs_rec.txt
+"Path where Python exe is stored\python.exe" "Path where Python script is stored\wpnsmith_rec.py" > logs_rec.txt
 
 wpnsmith_send.bat
-"Path where your Python exe is stored\python.exe" "Path where your Python script is stored\wpnsmith_send.py" > logs_send.txt
+"Path where Python exe is stored\python.exe" "Path where Python script is stored\wpnsmith_send.py" > logs_send.txt
 ```
 
 The respective logs files will show the day's mod name, as well has how many texts were sent/recieved.
@@ -38,4 +38,4 @@ Your mailbox service may indicate an insecure connection; security is not being 
 
 ## Roadmap
 
-- I'd like to get this working with Bungie's API so I would no longer need to obtain a list of needed mods from each individual, as well as not manually remove it from the list of mods they need, since it would automatically update within the game/API.
+* **Bungie API integration** - I'd like to get this working with Bungie's API so I would no longer need to obtain a list of needed mods from each individual, as well as not manually remove it from the list of mods needed, since it would automatically update within the game/API.
