@@ -1,5 +1,6 @@
 # wpnsmith_rec.py - checks for responses to texts sent from wpnsmith_send.py, indicating the mod list needs to be updated
 
+from wpnsmith_creds import getLogin
 from wpnsmith_getMod import getMod
 from wpnsmith_guardianList import guardianList
 import imapclient   #   Used to check for any replies
