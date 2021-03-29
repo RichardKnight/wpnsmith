@@ -36,7 +36,7 @@ def send():
     # Loop through each modlist file
     for g in guardian:
         # Open appropriate text file
-        file = g[1][0:2] + 'modlist.txt'
+        file = g[1] + 'modlist.txt'
         
         try:
             with open(file, 'r') as modList:
