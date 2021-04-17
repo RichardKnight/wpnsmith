@@ -5,26 +5,42 @@ import bs4          #   Used to pull HTML of vendor inventory
 import smtplib      #   Used to send emails as texts
 import imapclient   #   Used to check for any replies
 import pyzmail      #   Used to parse received emails
+import os
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 # Scheduler used to set speficic times for the rec() and send() functions to run
 sch = BlockingScheduler()
 
-# List of tuples in the following format: (PhoneNumber, 2-char .txt file prefix and carrier char)
-guardian = [('8885551111','aza'), ('8885552222','bya'), ('8885553333','cxc')]
+# Create list of tuples in the following format: (PhoneNumber, 2-char .txt file prefix and carrier char) from available txt files
+# Get current working directory, as modlist.txt files should be in current directory
+cwd = os.getcwd()
 
-# Dictionary used for faster lookup by phone number
+# Initialize the empty tuple list
+guardian = list()
+
+# Loop through the files in the cwd for any files ending in "modlist.txt"
+for file in os.listdir(cwd):
+    filename = os.fsdecode(file)
+    if filename.endswith('modlist.txt'):
+        # Open the file to obtain the phone number (first line of txt file) and the initials and carrier code (filename)
+        with open(file, 'r') as f:
+            gTuple = (f.readline().rstrip(), filename[0:3])
+            # Add the tuple to the list of tuples
+            guardian.append(gTuple)
+
+# Dictionaries used for faster email and phone number lookup
 prefix = dict(guardian)
 domain = {
     'a': '@mms.att.net',
-    'c': '@mms.cricketwireless.net'
+    'c': '@mms.cricketwireless.net',
+    'v': '@vzwpix.com'
 }
 
 ### This function logs into the email address to check for any responses, indicating that a mod has been purchased
 def rec():
     # Connect to IMAP to check for a previous response
-    imapConn = imapclient.IMAPClient('imap.email.com', ssl=True)
-    imapConn.login('mailbox@email.com', 'PASSWORD')
+    imapConn = imapclient.IMAPClient('imap.gmail.com', ssl=True)
+    imapConn.login('wpnsmthb44@gmail.com', 'B4nsheesL4ment')
     imapConn.select_folder('INBOX')
     
     # Search for unread emails
@@ -85,10 +101,10 @@ def rec():
 ###     and sends a text if the mod is listed as not owned.
 def send():
     # Connect to SMTP to send emails
-    smtpConn = smtplib.SMTP('smtp.email.com', 587)
+    smtpConn = smtplib.SMTP('smtp.gmail.com', 587)
     smtpConn.ehlo()
     smtpConn.starttls()
-    smtpConn.login('mailbox@email.com', 'PASSWORD')
+    smtpConn.login('wpnsmthb44@gmail.com', 'B4nsheesL4ment')
     
     # Determine today's mod
     modName = getMod()
@@ -111,7 +127,7 @@ def send():
                     # Send text/email
                     message = 'Guardian. Just a heads up. I have the ' + modName + ' mod in stock today. It\'s not in your collection. Send me a "$" to let me know if you pick it up, and I\'ll cross it off for ya.'
                     recipient = modsNeeded[0] + domain[g[1][2]]
-                    smtpConn.sendmail('mailbox@email.com', recipient, message)
+                    smtpConn.sendmail('wpnsmthb44@gmail.com', recipient, message)
                     
                     # Increment number of text notifications sent
                     sent += 1
