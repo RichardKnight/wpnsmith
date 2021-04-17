@@ -1,6 +1,6 @@
 # wpnsmith_creds.py - pulls the credentials of the email address to be used by other wpnsmith functions.
-#                       These credentials are stored in emailcreds.txt, where line 0 is assumed to be
-#                       the username and line 1 the password.
+#                       These credentials are stored in emailcreds.txt, where line 1 is assumed to be
+#                       the username and line 2 the password.
 
 import os
 
